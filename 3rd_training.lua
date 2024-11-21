@@ -839,7 +839,7 @@ function predict_hurtboxes(_player_obj, _frames_prediction)
   return _result
 end
 
-function update_blocking(_input, _player, _dummy, _mode, _style, _red_parry_hit_count)
+function update_blocking(_input, _player, _dummy, _mode, _percent, _style, _red_parry_hit_count)
 
   local _debug = false
 
@@ -1093,7 +1093,7 @@ function update_blocking(_input, _player, _dummy, _mode, _style, _red_parry_hit_
             elseif _mode == 4 then -- random
               if not _dummy.blocking.block_string then
                 local _r = math.random()
-                if _r > 0.5 then
+                if _r > _percent then
                   _dummy.blocking.randomized_out = true
                   if _debug then
                     print(string.format(" %d: next hit randomized out", frame_number))
@@ -1181,7 +1181,7 @@ function update_blocking(_input, _player, _dummy, _mode, _style, _red_parry_hit_
             elseif _mode == 4 then -- random
               if not _dummy.blocking.block_string then
                 local _r = math.random()
-                if _r > 0.5 then
+                if _r > _percent then
                   _dummy.blocking.projectile_randomized_out = true
                   if _debug then
                     print(string.format(" %d: next hit randomized out", frame_number))
@@ -1594,6 +1594,7 @@ training_settings = {
   pose = 1,
   blocking_style = 1,
   blocking_mode = 1,
+  blocking_percent = 50,
   tech_throws_mode = 1,
   red_parry_hit_count = 1,
   counter_attack_stick = 1,
@@ -1729,6 +1730,7 @@ main_menu = make_multitab_menu(
         list_menu_item("Blocking Style", training_settings, "blocking_style", blocking_style),
         hits_before_red_parry_item,
         list_menu_item("Blocking", training_settings, "blocking_mode", blocking_mode),
+        integer_menu_item("Blocking %", training_settings, "blocking_percent", 0, 100, true, 50),
         list_menu_item("Tech Throws", training_settings, "tech_throws_mode", tech_throws_mode),
         list_menu_item("Counter-Attack Move", training_settings, "counter_attack_stick", stick_gesture),
         list_menu_item("Counter-Attack Action", training_settings, "counter_attack_button", button_gesture),
@@ -2352,7 +2354,7 @@ function before_frame()
   update_pose(_input, dummy, training_settings.pose)
 
   -- blocking
-  update_blocking(_input, player, dummy, training_settings.blocking_mode, training_settings.blocking_style, training_settings.red_parry_hit_count)
+  update_blocking(_input, player, dummy, training_settings.blocking_mode, training_settings.blocking_percent/100, training_settings.blocking_style, training_settings.red_parry_hit_count)
 
   -- fast wake-up
   update_fast_wake_up(_input, player, dummy, training_settings.fast_wakeup_mode)
